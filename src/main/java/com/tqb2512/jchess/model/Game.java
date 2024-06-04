@@ -4,6 +4,7 @@ import lombok.Getter;
 import lombok.Setter;
 
 import java.util.ArrayList;
+import java.util.UUID;
 
 @Getter
 @Setter
@@ -17,6 +18,7 @@ public class Game {
     User currentPlayer;
 
     public Game(User player1) {
+        this.setId(UUID.randomUUID().toString());
         this.player1 = player1;
         this.status = GameStatus.WAITING_FOR_PLAYER;
         this.board = new Board();
