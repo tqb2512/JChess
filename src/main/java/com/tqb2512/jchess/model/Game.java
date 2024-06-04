@@ -1,5 +1,6 @@
 package com.tqb2512.jchess.model;
 
+import com.tqb2512.jchess.model.piece.Piece;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -37,4 +38,26 @@ public class Game {
                     currentPlayer = currentPlayer == player1 ? player2 : player1;
                 });
     }
+
+
+    public boolean isCheckMate() {
+        boolean isWhiteKingAlive = false;
+        boolean isBlackKingAlive = false;
+        for (int col = 0; col < 8; col++) {
+            for (int row = 0; row < 8; row++) {
+                Piece piece = board.getPiece(col, row);
+                if (piece != null) {
+                    if (piece.getName().equals("King")) {
+                        if (piece.getColor().equals("white")) {
+                            isWhiteKingAlive = true;
+                        } else {
+                            isBlackKingAlive = true;
+                        }
+                    }
+                }
+            }
+        }
+        return !isWhiteKingAlive || !isBlackKingAlive;
+    }
+
 }

@@ -19,4 +19,9 @@ public class WebSocketController {
     public void handleGameUpdate(@DestinationVariable String gameId, Game game) {
         simpMessagingTemplate.convertAndSend("/topic/game/" + gameId, game);
     }
+
+    @MessageMapping("/chat/{gameId}/")
+    public void handleChatMessage(@DestinationVariable String gameId, String message) {
+        simpMessagingTemplate.convertAndSend("/topic/chat/" + gameId, message);
+    }
 }

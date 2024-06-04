@@ -20,14 +20,11 @@ public class UserService {
     }
 
     public String signup(String username, String password) {
-        User user = new User(username, password);
-        userRepository.findByUsername(username);
-        if (user != null) {
-            return "User already exists";
-        } else {
-            userRepository.save(user);
+        if (userRepository.findByUsername(username) == null) {
+            userRepository.save(new User(username, password));
             return "User signed up";
         }
+        return "User already exists";
     }
 
     public String signin(String username, String password) {

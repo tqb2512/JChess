@@ -5,12 +5,12 @@ import com.tqb2512.jchess.model.User;
 import com.tqb2512.jchess.service.GameService;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Map;
+import java.util.Objects;
 
 @RestController
 @Slf4j
@@ -41,14 +41,22 @@ public class GameController {
     @PostMapping("/joinRoom")
     public ResponseEntity<Game> joinRoom(@RequestBody User player2, @RequestParam String gameId) {
         Game game = gameService.joinGame(player2, gameId);
+        gameService.startGame(gameId);
         simpMessagingTemplate.convertAndSend("/topic/game/" + gameId, game);
-        return game != null ? ResponseEntity.ok(game) : ResponseEntity.notFound().build();
+        return ResponseEntity.ok(game);
     }
 
     @RequestMapping("/start")
     public ResponseEntity<Game> startGame(@RequestParam String gameId) {
         Game game = gameService.startGame(gameId);
         simpMessagingTemplate.convertAndSend("/topic/game/" + gameId, game);
-        return game != null ? ResponseEntity.ok(game) : ResponseEntity.notFound().build();
+        return ResponseEntity.ok(game);
+    }
+
+    @RequestMapping("/move")
+    public ResponseEntity<Game> move(@RequestParam String gameId, @RequestParam int selectCol, @RequestParam int selectRow, @RequestParam int targetCol, @RequestParam int targetRow) {
+        Game game = gameService.move(gameId, selectCol, selectRow, targetCol, targetRow);
+        simpMessagingTemplate.convertAndSend("/topic/game/" + gameId, game);
+        return ResponseEntity.ok(game);
     }
 }
