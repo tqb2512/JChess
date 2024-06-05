@@ -16,6 +16,7 @@ import java.util.Map;
 @AllArgsConstructor
 public class GameService {
     private final SimpMessagingTemplate simpMessagingTemplate;
+    private final UserService userService;
 
     public Game createGame(User player1) {
         Game game = new Game(player1);
@@ -45,7 +46,14 @@ public class GameService {
         game.move(selectCol, selectRow, targetCol, targetRow);
         if (game.isCheckMate()) {
             game.setStatus(GameStatus.FINISHED);
+            userService.updateStats(game.getCurrentPlayer().getUsername().equals(game.getPlayer1().getUsername()) ? game.getPlayer2().getUsername() : game.getPlayer1().getUsername(), true);
+            userService.updateStats(game.getCurrentPlayer().getUsername(), false);
+            removeGame(gameId);
         }
         return game;
+    }
+
+    public void removeGame(String gameId) {
+        GameStorage.getInstance().getGames().remove(gameId);
     }
 }

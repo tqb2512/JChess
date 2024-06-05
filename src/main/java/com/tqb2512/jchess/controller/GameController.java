@@ -1,8 +1,10 @@
 package com.tqb2512.jchess.controller;
 
 import com.tqb2512.jchess.model.Game;
+import com.tqb2512.jchess.model.GameStatus;
 import com.tqb2512.jchess.model.User;
 import com.tqb2512.jchess.service.GameService;
+import com.tqb2512.jchess.service.UserService;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
@@ -19,6 +21,7 @@ import java.util.Objects;
 public class GameController {
 
     private final GameService gameService;
+    private final UserService userService;
     private final SimpMessagingTemplate simpMessagingTemplate;
 
     @PostMapping("/createRoom")
@@ -57,6 +60,24 @@ public class GameController {
     public ResponseEntity<Game> move(@RequestParam String gameId, @RequestParam int selectCol, @RequestParam int selectRow, @RequestParam int targetCol, @RequestParam int targetRow) {
         Game game = gameService.move(gameId, selectCol, selectRow, targetCol, targetRow);
         simpMessagingTemplate.convertAndSend("/topic/game/" + gameId, game);
+        return ResponseEntity.ok(game);
+    }
+
+    @PostMapping("/leave")
+    public ResponseEntity<Game> leaveRoom(@RequestParam String gameId, @RequestBody User user) {
+        Game game = gameService.getGames().get(gameId);
+        userService.updateStats(user.getUsername(), false);
+        userService.updateStats(game.getPlayer1().getUsername().equals(user.getUsername()) ? game.getPlayer2().getUsername() : game.getPlayer1().getUsername(), true);
+        game.setStatus(GameStatus.FINISHED);
+        gameService.removeGame(gameId);
+        simpMessagingTemplate.convertAndSend("/topic/game/" + gameId, game);
+        return ResponseEntity.ok(game);
+    }
+
+    @RequestMapping("/remove")
+    public ResponseEntity<Game> removeRoom(@RequestParam String gameId) {
+        Game game = gameService.getGames().get(gameId);
+        gameService.removeGame(gameId);
         return ResponseEntity.ok(game);
     }
 }
