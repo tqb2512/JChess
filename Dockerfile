@@ -1,12 +1,12 @@
 # Stage 1: Build the application
-FROM maven:3.6.3-jdk-11 AS build
-WORKDIR /home/app
-COPY . /home/app
-RUN mvn clean package
+FROM gradle:8.7.0-jdk-21-and-22-graal-jammy AS build
+WORKDIR /app
+COPY . /app/
+RUN gradle build --no-daemon
 
 # Stage 2: Run the application
-FROM openjdk:11-jre-slim
-WORKDIR /home/app
-COPY --from=build /home/app/target/*.jar app.jar
+FROM openjdk:17-jdk-alpine3.14
+WORKDIR /app
+COPY --from=build /app/build/libs/*.jar /app/app.jar
 EXPOSE 8080
-ENTRYPOINT ["java", "-jar", "app.jar"]
+CMD ["java", "-jar", "app.jar"]
