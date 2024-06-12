@@ -2,14 +2,14 @@ package com.tqb2512.jchess.controller;
 
 import com.tqb2512.jchess.model.User;
 import com.tqb2512.jchess.service.UserService;
-import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.tomcat.util.json.JSONParser;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+
+import java.util.Map;
 
 @RestController
 @Slf4j
@@ -27,6 +27,11 @@ public class UserController {
     public ResponseEntity<User> getUser(@RequestParam String username) {
         User user = userService.getUser(username);
         return user != null ? ResponseEntity.ok(user) : ResponseEntity.notFound().build();
+    }
+
+    @RequestMapping("/getLeaderboard")
+    public ResponseEntity<Map<String, User>> getLeaderboard() {
+        return ResponseEntity.ok(userService.getLeaderboard());
     }
 
     @RequestMapping("/signup")
